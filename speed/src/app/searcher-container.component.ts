@@ -32,7 +32,10 @@ export class SearcherContainerComponent implements OnInit {
   ngOnInit() {
     this.initData();
     this.store.select$(SlideTypes.option)
-      .subscribe(option => this.selectedSearchValues = this.selectSearchValues(option));
+      .subscribe(option => {
+        this.filteredLaunches = [];
+        this.selectedSearchValues = this.store.selectSnapShot(option);
+      });
     this.store.select$(SlideTypes.value)
       .subscribe(value => {
         this.filteredLaunches = this.filterLaunches(
@@ -65,17 +68,8 @@ export class SearcherContainerComponent implements OnInit {
     this.store.dispatch(new ChangeValue($event))
   };
 
-  private selectSearchValues(option: SlideTypes): Agency[] | MissionType[] | Status[] {
-    this.filteredLaunches = [];
-    if (option != '') {
-      return this.store.selectSnapShot(option);
-    }else{
-      return [];
-    }
-  }
-
   private filterLaunches(option: SlideTypes, value: number, launches: Launch[]): Launch[] {
-    if (option != '' && value != 0) {
+    if (value != 0) {
       switch (option) {
         case SlideTypes.agencies:
           return this.filterByAgency(value, launches);
